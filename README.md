@@ -1,8 +1,8 @@
-
+# 🐎 Horse Project
+## Give a star ⭐
 
 <img width="1919" height="1079" alt="image" src="https://github.com/user-attachments/assets/c2a17c24-ed34-44c2-aca8-f3e7325ad821" />
 
-# 🐎 Horse Project
 
 > A free, open-source learning project for students. Explore it, learn from it, and build on it.
 
