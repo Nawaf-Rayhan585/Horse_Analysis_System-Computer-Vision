@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Horse Analysis System</title>
+<link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="app">
+
+    <header class="topbar">
+      <div class="brand">
+        <span class="brand-mark">H</span>
+        <div class="brand-text">
+          <h1 class="brand-title">Horse Analysis System</h1>
+          <p class="brand-sub">Live horse detection and tracking, proof of concept</p>
+        </div>
+      </div>
+      <div class="topbar-right">
+        <div class="status" id="cameraStatusPill">
+          <span class="dot" id="cameraStatusDot"></span>
+          <span id="cameraStatusText">Connecting…</span>
+        </div>
+        <div class="clock" id="clock">--:--:--</div>
+      </div>
+    </header>
+
+    <main class="layout">
+
+      <section class="video-panel">
+        <div class="video-frame" id="videoFrame">
+          <img id="videoFeed" src="/api/video_feed" alt="Live CCTV Feed" draggable="false" />
+        </div>
+        <div class="video-caption">
+          <span class="live-indicator"><span class="live-dot"></span>Live feed</span>
+          <span class="video-caption-sep">·</span>
+          <span id="horseCountBadge">0 horses tracked</span>
+        </div>
+      </section>
+
+      <aside class="sidebar">
+
+        <div class="stat-grid">
+          <div class="stat-card">
+            <div class="stat-label">Horses detected</div>
+            <div class="stat-value" id="statHorses">0</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">People detected</div>
+            <div class="stat-value" id="statPeople">0</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Frame rate</div>
+            <div class="stat-value" id="statFps">0</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Camera</div>
+            <div class="stat-value stat-status" id="statStatus"></div>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-head">Detected objects</div>
+          <div class="panel-list" id="trackList">
+            <div class="panel-empty" id="trackEmpty">Nothing detected right now.</div>
+          </div>
+        </div>
+
+      </aside>
+
+    </main>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>

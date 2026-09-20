@@ -1,0 +1,10 @@
+backend/.venv/
+backend/__pycache__/
+backend/app/__pycache__/
+backend/*.pt
+backend/videos/*.mp4
+backend/screenshots/*.jpg
+backend/app/zone_state.json
+__pycache__/
+*.pyc
+.DS_Store
