@@ -1,114 +1,109 @@
-# 🐎 Horse Project
-## Give a star ⭐
+# 🐎 Horse Analysis System
 
-<img width="1919" height="1079" alt="image" src="https://github.com/user-attachments/assets/c2a17c24-ed34-44c2-aca8-f3e7325ad821" />
+Real-time horse and person tracking from a CCTV feed, with a live web dashboard.
+Built with YOLOv8 + ByteTrack on a FastAPI backend.
 
-
-> A free, open-source learning project for students. Explore it, learn from it, and build on it.
+<img width="1919" height="1079" alt="Horse Analysis System dashboard" src="https://github.com/user-attachments/assets/c2a17c24-ed34-44c2-aca8-f3e7325ad821" />
 
 ![License](https://img.shields.io/badge/license-MIT-blue.svg)
-![Status](https://img.shields.io/badge/status-active-brightgreen.svg)
-![PRs Welcome](https://img.shields.io/badge/PRs-welcome-orange.svg)
-
-## Table of Contents
-
-- [About](#about)
-- [Features](#features)
-- [Getting Started](#getting-started)
-- [Project Structure](#project-structure)
-- [Usage](#usage)
-- [Contributing](#contributing)
-- [Roadmap](#roadmap)
-- [License](#license)
-- [Contact](#contact)
-
-## About
-
-Horse Project is an open-source project created for my students, free for anyone to use. It's meant to be read, run, modified, and broken. The best way to learn is to build, so fork it and make it your own.
+![Python](https://img.shields.io/badge/python-3.10+-blue.svg)
+![YOLOv8](https://img.shields.io/badge/YOLO-v8-purple.svg)
 
 ## Features
 
-- Free and open source, with no paywalls or sign-ups
-- Beginner-friendly code with a clear structure
-- Runs directly in the browser, with no complicated setup
-- Easy to extend with your own ideas
+- Detects and tracks **horses** and **people** frame by frame (COCO YOLOv8n)
+- **Stable IDs** — ByteTrack plus a custom ID-reuse step, so a horse that disappears for a few seconds comes back with the same ID
+- Weak detections still feed the tracker but aren't drawn, so fewer ghost boxes
+- Live **MJPEG video stream** in the browser with a CCTV-style timestamp burn-in
+- Dashboard cards: horses detected, people detected, processing FPS, camera status
+- Shows a "NO SIGNAL" screen instead of crashing if the video is missing
 
-## Getting Started
+## How it works
 
-### Prerequisites
+```
+video file ─► YOLOv8 (horse + person) ─► ByteTrack + stable IDs ─► annotated frame
+                                                                  │
+                        FastAPI  /api/video_feed (MJPEG)  ◄───────┤
+                                 /api/state (JSON stats)  ◄───────┘
+                                          │
+                               frontend/ (HTML + JS dashboard)
+```
 
-- A modern web browser (Chrome, Firefox, Edge, or Safari)
-- [Git](https://git-scm.com/) to clone the repository
-- A code editor such as [VS Code](https://code.visualstudio.com/) (optional but recommended)
+## Project structure
 
-### Installation
+```
+backend/
+  app/
+    main.py             # FastAPI app: stream + state API, serves the frontend
+    video_processor.py  # reads the video, runs detection, pushes frames
+    detector.py         # YOLO + ByteTrack + stable ID logic
+    annotate.py         # boxes, labels, timestamp overlay
+    state.py            # thread-safe shared state
+    config.py           # all settings in one place
+  bytetrack_stable.yaml
+  requirements.txt
+  run.ps1               # Windows start script
+  videos/               # put your demo video here
+frontend/
+  index.html  app.js  style.css
+```
+
+## Getting started
 
 ```bash
-# Clone the repository
-git clone https://github.com/YOUR_USERNAME/YOUR_REPO.git
+git clone https://github.com/Nawaf-Rayhan585/Horse_Analysis_System-Computer-Vision.git
+cd Horse_Analysis_System-Computer-Vision/backend
 
-# Move into the project folder
-cd YOUR_REPO
+python -m venv .venv
+# Windows: .venv\Scripts\activate    Linux/Mac: source .venv/bin/activate
+pip install -r requirements.txt
 ```
 
-### Run it
-
-Open `index.html` in your browser, or serve it locally:
+1. Put a video of horses in `backend/videos/`.
+2. Set `VIDEO_PATH` in `backend/app/config.py` to that file name.
+3. Start the server:
 
 ```bash
-# Using Python
-python -m http.server 8000
+uvicorn app.main:app --host 0.0.0.0 --port 8000
+# or on Windows: .\run.ps1
 ```
 
-Then visit `http://localhost:8000`.
+4. Open **http://localhost:8000**
 
-## Project Structure
+`yolov8n.pt` downloads automatically on first run.
 
-```
-.
-├── index.html      # Main page
-├── css/            # Stylesheets
-├── js/             # Scripts
-├── assets/         # Images and media
-└── README.md
-```
+## Config
 
-## Usage
+All tuning lives in `backend/app/config.py`:
 
-1. Open the project in your editor.
-2. Change something small, such as a colour, a text, or an image.
-3. Refresh your browser and see the result.
-4. Repeat, and keep experimenting.
+| Setting | Default | What it does |
+|---|---|---|
+| `CONFIDENCE_THRESHOLD` | 0.2 | Min confidence fed to the tracker |
+| `DISPLAY_MIN_CONFIDENCE` | 0.45 | Min confidence to draw a box |
+| `NMS_IOU` | 0.45 | Overlap suppression (fewer duplicate boxes) |
+| `ID_REUSE_SECONDS` | 8.0 | How long a lost ID can come back |
+| `INFERENCE_IMGSZ` | 640 | YOLO input size |
+| `STREAM_MAX_WIDTH` | 960 | Width of the browser stream |
 
-## Contributing
+## API
 
-Contributions of all sizes are welcome, including fixes, ideas, and improvements.
-
-1. Fork the repository
-2. Create a branch: `git checkout -b feature/your-idea`
-3. Commit your changes: `git commit -m "Add your idea"`
-4. Push to your branch: `git push origin feature/your-idea`
-5. Open a Pull Request
-
-New to open source? This is a good place to make your first contribution. Every question is a good question.
+| Endpoint | Returns |
+|---|---|
+| `GET /api/state` | JSON: camera status, FPS, counts, tracked objects |
+| `GET /api/video_feed` | Live MJPEG stream |
 
 ## Roadmap
 
-- [ ] Add more examples and lessons
-- [ ] Improve documentation
-- [ ] Add accessibility improvements
-- [ ] Collect ideas from students
-
-Have a suggestion? [Open an issue](https://github.com/YOUR_USERNAME/YOUR_REPO/issues).
+- [ ] Safe-zone intrusion alerts
+- [ ] Per-horse activity stats (walking / standing / lying)
+- [ ] RTSP camera input
 
 ## License
 
-Distributed under the MIT License. See `LICENSE` for details.
+MIT — see [LICENSE](LICENSE).
 
 ## Contact
 
-Questions, feedback, or ideas? Reach out at [fayaz7rg@gmail.com](mailto:fayaz7rg@gmail.com), or open an issue on GitHub.
+Built by **Nawaf Rayhan** — [fayaz7rg@gmail.com](mailto:fayaz7rg@gmail.com) · [Portfolio](https://nawaf585.netlify.app)
 
----
-
-If this helped you learn something, consider giving it a ⭐
+If this helped you, drop a ⭐

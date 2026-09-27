@@ -1,6 +1,6 @@
 Place your demo CCTV video here with this exact name:
 
-    backend/videos/horse_demo.mp4
+    backend/videos/<your_video>.mp4  (then set VIDEO_PATH in app/config.py)
 
 Requirements:
 - Any standard format OpenCV can read (.mp4 with H.264 is safest).
